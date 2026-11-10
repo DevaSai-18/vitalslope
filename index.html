@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VitalSlope – See how fast a patient is changing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Figtree:wght@400;500;700&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--paper:#f2f8f6;--card:#fff;--ink:#0f2a3d;--muted:#52687a;--line:#d3e2de;--grid:#e3eeea;--pulse:#e03a5a;--teal:#0e8a82;--amber:#c97f00;--blue:#2563eb;--ok:#1a8a4a;--hdr:rgba(242,248,246,.92)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--paper:#091821;--card:#10242f;--ink:#e5f1ef;--muted:#8fa9b5;--line:#1f3a47;--grid:#12293a;--pulse:#ff6b86;--teal:#2dd4bf;--amber:#fbbf24;--blue:#60a5fa;--ok:#4ade80;--hdr:rgba(9,24,33,.92)}}
+:root[data-theme="dark"]{color-scheme:dark;--paper:#091821;--card:#10242f;--ink:#e5f1ef;--muted:#8fa9b5;--line:#1f3a47;--grid:#12293a;--pulse:#ff6b86;--teal:#2dd4bf;--amber:#fbbf24;--blue:#60a5fa;--ok:#4ade80;--hdr:rgba(9,24,33,.92)}
+html{scroll-behavior:smooth;scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 1rem/1.6 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hdr);z-index:30}
+h1,h2,h3{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:650;line-height:1.1;margin:0}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--hdr);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav div{max-width:1120px;margin:0 auto;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.logo{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:1.3rem;color:var(--ink);text-decoration:none}.logo i{color:var(--pulse);font-style:normal}
+.nav nav{display:flex;gap:4px;flex-wrap:wrap}.nav a.m{padding:6px 11px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500;font-size:.92rem}.nav a.m:hover{color:var(--ink);background:var(--grid)}
+.w{max-width:1120px;margin:0 auto;padding:0 18px}
+section{padding:64px 0}
+.hero{padding:44px 0 0;background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/100% 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 100%}
+.hg{display:grid;grid-template-columns:1.25fr 1fr;gap:36px;align-items:center;padding-bottom:30px}@media(max-width:820px){.hg{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(2.2rem,5.4vw,3.9rem);letter-spacing:-.015em;max-width:15ch}
+.hero p.l{font-size:1.12rem;color:var(--muted);max-width:52ch;margin:16px 0 24px}
+.btn{display:inline-block;padding:11px 20px;border-radius:10px;background:var(--ink);color:var(--paper);text-decoration:none;font-weight:700;margin:0 8px 8px 0;border:1px solid var(--ink);cursor:pointer;font:inherit;font-weight:700}
+.btn.g{background:transparent;color:var(--ink);border-color:var(--line)}.btn:focus-visible,a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.live{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}
+.live .big{font-family:Fraunces,Georgia,serif;font-size:4.2rem;font-weight:650;line-height:1;letter-spacing:-.02em}.live .big small{font-size:1.1rem;color:var(--muted);font-family:Figtree,sans-serif;font-weight:500}
+.rate{display:inline-block;margin-top:10px;padding:5px 12px;border-radius:999px;font-weight:700;font-size:.9rem;background:var(--grid)}
+.up{color:var(--amber)}.dn{color:var(--blue)}.fl{color:var(--ok)}
+#ecg{display:block;width:100%;height:120px;border-top:1px solid var(--line);background:var(--card)}
+h2{font-size:clamp(1.7rem,3.6vw,2.4rem);margin-bottom:10px}.sub{color:var(--muted);max-width:62ch;margin:0 0 28px}
+.two{display:grid;grid-template-columns:1.3fr 1fr;gap:20px}@media(max-width:860px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.card h3{font-size:1.15rem;margin-bottom:8px}
+canvas.c{width:100%;height:230px;display:block}
+label{display:block;font-size:.85rem;color:var(--muted);margin:12px 0 3px;font-weight:500}label output{float:right;color:var(--ink);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--teal)}
+input[type=number],input[type=text],select{font:inherit;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);width:100%}
+.ro{margin-top:12px;font-size:.95rem}.ro b{font-size:1.3rem}.eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;overflow-x:auto}
+.vitals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}@media(max-width:700px){.vitals{grid-template-columns:1fr}}
+.v{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;border-bottom:5px solid var(--ok)}.v.sel{box-shadow:0 0 0 2px var(--teal) inset}.v.al{border-bottom-color:var(--pulse)}
+.v .n{color:var(--muted);font-weight:500;font-size:.9rem}.v .x{font-family:Fraunces,Georgia,serif;font-size:2.6rem;font-weight:650;line-height:1.1}.v .x small{font-size:.95rem;color:var(--muted);font-family:Figtree,sans-serif}.v p{margin:2px 0;font-size:.86rem;color:var(--muted)}
+.banner{border-radius:12px;padding:11px 16px;font-weight:700;background:var(--ok);color:#fff;margin-bottom:14px}.banner.al{background:var(--pulse)}
+.row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:4px 16px}
+.act{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.act .btn{margin:0;padding:9px 15px;font-size:.9rem}
+ol.log{margin:8px 0 0;padding-left:18px;font-size:.88rem;color:var(--muted)}ol.log li{margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:500}tr.hot td{background:color-mix(in srgb,var(--pulse) 12%,transparent)}
+.note{font-size:.83rem;color:var(--muted);margin-top:10px}.msg{font-size:.88rem;color:var(--teal);min-height:1.3em;margin-top:8px}
+.lims{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}.lims ul{margin:6px 0 0;padding-left:18px;color:var(--muted)}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--muted);font-size:.86rem}
+</style>
+</head>
+<body>
+<header class="nav"><div>
+ <a class="logo" href="#top">Vital<i>Slope</i></a>
+ <nav><a class="m" href="#idea">The idea</a><a class="m" href="#monitor">Live monitor</a><a class="m" href="#records">Records</a><a class="m" href="#case">Case study</a><a class="m" href="#scope">Limits</a></nav>
+</div></header>
+
+<main id="top">
+<div class="hero"><div class="w hg">
+ <div>
+  <h1>See how fast a patient is changing, not just where they are.</h1>
+  <p class="l">VitalSlope follows heart rate, temperature and SpO₂ in real time. Differential calculus turns each reading into a direction and a speed, so a trend shows up before a limit is crossed.</p>
+  <a class="btn" href="#monitor">Start the live monitor</a><a class="btn g" href="#idea">See how the maths works</a>
+ </div>
+ <div class="live" aria-live="polite">
+  <div class="muted" style="color:var(--muted)">Simulated patient · heart rate</div>
+  <div class="big"><span id="hh">–</span> <small>bpm</small></div>
+  <span class="rate" id="hd">measuring…</span>
+  <p class="note" id="hv" style="margin-top:12px">Live from the same model that drives the monitor below.</p>
+ </div>
+</div>
+<canvas id="ecg" aria-label="Live heart trace"></canvas></div>
+
+<section id="idea"><div class="w">
+ <h2>A reading tells you where. A derivative tells you where it’s heading.</h2>
+ <p class="sub">The rate of change between two readings is a slope. Make the gap between them smaller and that slope settles on the true instantaneous rate, dP/dt. Drag the sliders and watch it happen.</p>
+ <div class="two">
+  <div class="card"><canvas class="c" id="sec"></canvas>
+   <label>Time of interest t <output id="o1">6.0 min</output></label><input type="range" id="s1" min="1" max="10" step=".1" value="6">
+   <label>Gap between readings h <output id="o2">4.0 min</output></label><input type="range" id="s2" min=".1" max="5" step=".1" value="4">
+   <div class="ro">Average rate over the gap: <b id="r1">–</b> bpm/min<br>True rate at t, dP/dt: <b id="r2" style="color:var(--teal)">–</b> bpm/min</div>
+  </div>
+  <div class="card"><h3>Try the formula</h3>
+   <div class="row3"><div><label>t₁ (min)</label><input type="number" id="t1" value="2"></div><div><label>P₁</label><input type="number" id="p1" value="80" step="any"></div><div><label>t₂ (min)</label><input type="number" id="t2" value="6"></div><div><label>P₂</label><input type="number" id="p2" value="88" step="any"></div></div>
+   <div class="eq" id="cf"></div><div class="ro"><b id="cr" style="color:var(--teal)"></b></div><p class="note" id="ci"></p>
+   <p class="note">Default values are the project’s worked example: 80 bpm at 2 min and 88 bpm at 6 min give 2 bpm per minute.</p></div>
+ </div>
+</div></section>
+
+<section id="monitor" style="background:color-mix(in srgb,var(--grid) 55%,transparent)"><div class="w">
+ <h2>Live monitor</h2>
+ <p class="sub">A simulated patient produces a reading every second, standing for one minute. Each vital relaxes toward a target by dP/dt = k(target − P). We estimate its rate of change from the last six readings and warn when a limit is crossed or about to be.</p>
+ <div class="banner" id="ban">All readings within limits</div>
+ <div class="vitals" id="vit"></div>
+ <div class="two">
+  <div class="card"><h3 id="ct">Heart rate over time</h3><canvas class="c" id="cp"></canvas><canvas class="c" id="cd" style="height:130px"></canvas><p class="note">Top: the reading with its limit (dashed). Bottom: its rate of change; above zero is rising, below is falling.</p></div>
+  <div class="card"><h3>Controls</h3>
+   <label>Patient scenario</label><select id="sc"><option value="fever">Developing fever</option><option value="resp">Falling oxygen</option><option value="stable">Stable</option></select>
+   <label>Speed <output id="oS">2×</output></label><input type="range" id="sp" min="1" max="8" value="2">
+   <label>Heart rate limit <output id="oH">100 bpm</output></label><input type="range" id="thH" min="85" max="130" value="100">
+   <label>Temperature limit <output id="oT">37.8 °C</output></label><input type="range" id="thT" min="37" max="39.5" step=".1" value="37.8">
+   <label>SpO₂ limit <output id="oO">94 %</output></label><input type="range" id="thO" min="88" max="98" value="94">
+   <div class="act"><button class="btn" id="pz">Pause</button><button class="btn g" id="rs">Restart</button><button class="btn g" id="snap">Save snapshot</button></div>
+   <div class="msg" id="smsg"></div>
+   <h3 style="margin-top:16px;font-size:1rem">Alerts</h3><ol class="log" id="log"><li>None yet</li></ol></div>
+ </div>
+</div></section>
+
+<section id="records"><div class="w">
+ <h2>Patient records</h2>
+ <p class="sub">Add a fictional patient, then save snapshots from the live monitor. Records are stored in this browser, so they are still here when you come back.</p>
+ <div class="two">
+  <div class="card"><h3>Add a patient</h3><label>Name (fictional)</label><input type="text" id="pn" maxlength="40" placeholder="Sample Patient A"><label>Age</label><input type="number" id="pa" value="35" min="0" max="120">
+   <div class="act"><button class="btn" id="addp">Add patient</button></div><div class="msg" id="pmsg"></div>
+   <label>Selected patient</label><select id="rp"></select>
+   <label style="display:flex;gap:8px;align-items:center;margin-top:14px"><input type="checkbox" id="auto" style="width:auto">Save every 5th reading automatically</label>
+   <p class="note">Use simulated or fictional data only.</p></div>
+  <div class="card"><h3 id="rh">No patient selected</h3><div style="overflow-x:auto"><table id="rt"></table></div>
+   <div class="act"><button class="btn g" id="clr">Clear readings</button><button class="btn g" id="del">Delete patient</button></div></div>
+ </div>
+</div></section>
+
+<section id="case"><div class="w">
+ <h2>Worked case study</h2>
+ <p class="sub">A simulated adult with a rising temperature, measured every two minutes. Rows above the 37.5 °C demonstration threshold are highlighted.</p>
+ <div class="card" style="overflow-x:auto"><table id="tb"></table></div>
+ <p class="note">Values are simulated for teaching and are not clinical reference values.</p>
+</div></section>
+
+<section id="scope" style="background:color-mix(in srgb,var(--grid) 55%,transparent)"><div class="w">
+ <h2>Where it fits, and where it stops</h2>
+ <p class="sub">Differential calculus gives a useful way to study how readings change over time. This site is a teaching prototype.</p>
+ <div class="lims">
+  <div class="card"><h3>Applications</h3><ul><li>Teaching patient-monitoring concepts</li><li>Remote-monitoring prototypes</li><li>Wearable data visualisation</li><li>Time-series research and dashboards</li></ul></div>
+  <div class="card"><h3>Limitations</h3><ul><li>Simulated data only</li><li>Simplified model; sensor errors not modelled</li><li>Not for diagnosis or treatment</li></ul></div>
+  <div class="card"><h3>Future scope</h3><ul><li>Validated sensor data under supervision</li><li>Better filtering and rate estimation</li><li>Secure data handling and expert review</li></ul></div>
+ </div>
+</div></section>
+</main>
+<footer><div class="w">VitalSlope is an educational microproject using simulated data. It does not diagnose or make medical decisions.</div></footer>
+
+<script>
+const $=id=>document.getElementById(id),css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const esc=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEYS=['hr','tp','sp'],LAB={hr:'Heart rate',tp:'Temperature',sp:'SpO₂'},UN={hr:'bpm',tp:'°C',sp:'%'},DEC={hr:0,tp:1,sp:0},EPS={hr:.25,tp:.01,sp:.03},KK={hr:.14,tp:.07,sp:.1},NZ={hr:2.4,tp:.08,sp:.7};
+const TH={hr:100,tp:37.8,sp:94},DIR={hr:1,tp:1,sp:-1};
+/* plotting */
+function plot(cv,xs,ys,o){const dpr=devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w)return;
+ if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);if(ys.length<2)return;
+ let mn=Math.min(...ys),mx=Math.max(...ys);
+ if(o.zero){const m=Math.max(Math.abs(mn),Math.abs(mx),o.eps*3);mn=-m;mx=m}else{if(o.lim!=null){mn=Math.min(mn,o.lim);mx=Math.max(mx,o.lim)}const p=(mx-mn)*.15||1;mn-=p;mx+=p}
+ const L=40,Y=v=>h-16-(h-26)*(v-mn)/(mx-mn),X=i=>L+(w-L-8)*i/(ys.length-1);
+ x.font='11px Figtree,system-ui';x.lineWidth=1;
+ [mn,(mn+mx)/2,mx].forEach(v=>{x.strokeStyle=css('--line');x.beginPath();x.moveTo(L,Y(v));x.lineTo(w,Y(v));x.stroke();x.fillStyle=css('--muted');x.fillText(v.toFixed(o.d),3,Y(v)+4)});
+ x.fillText(xs[0]+' min',L,h-3);const e=xs[xs.length-1]+' min';x.fillText(e,w-8-x.measureText(e).width,h-3);
+ if(o.zero){x.strokeStyle=css('--muted');x.beginPath();x.moveTo(L,Y(0));x.lineTo(w,Y(0));x.stroke()}
+ if(o.lim!=null){x.setLineDash([5,4]);x.strokeStyle=css('--pulse');x.beginPath();x.moveTo(L,Y(o.lim));x.lineTo(w,Y(o.lim));x.stroke();x.setLineDash([])}
+ x.strokeStyle=css(o.col);x.lineWidth=2.5;x.lineJoin='round';x.beginPath();ys.forEach((v,i)=>i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v)));x.stroke()}
+/* secant demo */
+const Pf=t=>80+14*Math.tanh((t-6)/3),dPf=t=>14/3/Math.pow(Math.cosh((t-6)/3),2);
+function sec(){const cv=$('sec'),t0=+$('s1').value,hh=+$('s2').value;$('o1').textContent=t0.toFixed(1)+' min';$('o2').textContent=hh.toFixed(1)+' min';
+ const r=(Pf(t0+hh)-Pf(t0))/hh,tr=dPf(t0);$('r1').textContent=r.toFixed(2);$('r2').textContent=tr.toFixed(2);
+ const dpr=devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;if(!w)return;if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+ const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);
+ const L=34,X=t=>L+(w-L-8)*t/12,Y=v=>h-18-(h-28)*(v-62)/(100-62);
+ x.font='11px Figtree,system-ui';x.fillStyle=css('--muted');x.strokeStyle=css('--line');
+ [65,80,95].forEach(v=>{x.beginPath();x.moveTo(L,Y(v));x.lineTo(w,Y(v));x.stroke();x.fillText(v,4,Y(v)+4)});[0,3,6,9,12].forEach(t=>x.fillText(t,X(t)-3,h-4));
+ const line=(m,t,c,dash)=>{x.setLineDash(dash||[]);x.strokeStyle=css(c);x.lineWidth=2;x.beginPath();x.moveTo(X(0),Y(Pf(t)+m*(0-t)));x.lineTo(X(12),Y(Pf(t)+m*(12-t)));x.stroke();x.setLineDash([])};
+ line(tr,t0,'--teal',[6,4]);line(r,t0,'--amber');
+ x.strokeStyle=css('--ink');x.lineWidth=3;x.beginPath();for(let t=0;t<=12;t+=.1)t?x.lineTo(X(t),Y(Pf(t))):x.moveTo(X(t),Y(Pf(t)));x.stroke();
+ [[t0,css('--teal')],[t0+hh,css('--amber')]].forEach(([t,c])=>{x.fillStyle=c;x.beginPath();x.arc(X(t),Y(Pf(t)),5,0,7);x.fill()})}
+['s1','s2'].forEach(i=>$(i).oninput=sec);
+function calc(){const a=+$('t1').value,b=+$('p1').value,c=+$('t2').value,d=+$('p2').value;
+ if(c===a){$('cf').textContent='t₂ must differ from t₁';$('cr').textContent='';$('ci').textContent='';return}
+ const r=(d-b)/(c-a);$('cf').innerHTML=`Rate ≈ (P₂ − P₁) / (t₂ − t₁)<br>= (${d} − ${b}) / (${c} − ${a}) = ${(d-b)} / ${c-a}`;
+ $('cr').textContent=(+r.toFixed(3))+' per minute';$('ci').textContent=r>0?'Positive: the reading is increasing.':r<0?'Negative: the reading is decreasing.':'The reading is unchanged.'}
+['t1','p1','t2','p2'].forEach(i=>$(i).oninput=calc);
+/* simulation */
+const N=(a,b,c)=>({hr:a,tp:b,sp:c});
+const SCN={stable:t=>N(72,36.8,98),fever:t=>t<10?N(76,37,98):N(106,39.1,95.5),resp:t=>N(t<8?78:96,37.1,Math.max(85,98-Math.max(0,t-8)*.25))};
+const START={stable:N(72,36.8,98),fever:N(76,37,98),resp:N(78,37.1,98)};
+let S,run=true,speed=2,acc=0,sel='hr',dirty=true,flags={},LOG=[],saveN=0;
+function fresh(){const sc=$('sc').value;S={t:0,P:{...START[sc]},h:{t:[],hr:[],tp:[],sp:[]}};flags={};LOG=[];$('log').innerHTML='<li>None yet</li>'}
+function slope(a){const s=a.slice(-6),n=s.length;if(n<3)return 0;const mx=(n-1)/2,my=s.reduce((p,q)=>p+q,0)/n;let u=0,v=0;s.forEach((y,i)=>{u+=(i-mx)*(y-my);v+=(i-mx)**2});return u/v}
+function tick(){const g=SCN[$('sc').value](S.t);
+ KEYS.forEach(k=>{S.P[k]+=KK[k]*(g[k]-S.P[k])+(Math.random()-.5)*NZ[k];S.h[k].push(k==='sp'?Math.min(100,S.P[k]):S.P[k]);if(S.h[k].length>60)S.h[k].shift()});
+ S.h.t.push(S.t);if(S.h.t.length>60)S.h.t.shift();S.t++;
+ KEYS.forEach(k=>{const v=S.h[k].at(-1),bad=DIR[k]*(v-TH[k])>0;
+  if(bad&&!flags[k]){LOG.unshift(`t = ${S.t} min: ${LAB[k]} ${v.toFixed(DEC[k])} ${UN[k]} crossed its limit`);LOG=LOG.slice(0,6);$('log').innerHTML=LOG.map(s=>`<li>${s}</li>`).join('')}flags[k]=bad});
+ if($('auto').checked&&++saveN%5===0)snapshot(true);dirty=true}
+function ttl(k,m){const v=S.h[k].at(-1),l=TH[k];if(DIR[k]*(v-l)>0)return'Limit exceeded';
+ if(DIR[k]*m>EPS[k]){const t=(l-v)/m;if(t>0&&t<=90)return`Reaches ${l} ${UN[k]} in about ${Math.round(t)} min`}return'No limit crossing predicted'}
+$('vit').innerHTML=KEYS.map(k=>`<div class="v" id="v-${k}" tabindex="0" role="button"><div class="n">${LAB[k]}</div><div class="x"><span id="x-${k}">–</span> <small>${UN[k]}</small></div><p id="r-${k}"></p><p id="p-${k}"></p></div>`).join('');
+KEYS.forEach(k=>{const f=()=>{sel=k;dirty=true};$('v-'+k).onclick=f;$('v-'+k).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();f()}}});
+function render(){const n=S.h.t.length;if(!n)return;let any=false;
+ KEYS.forEach(k=>{const a=S.h[k],v=a[n-1],m=slope(a),bad=DIR[k]*(v-TH[k])>0;
+  $('x-'+k).textContent=v.toFixed(DEC[k]);const c=m>EPS[k]?'up':m<-EPS[k]?'dn':'fl',w=m>EPS[k]?'↑ rising':m<-EPS[k]?'↓ falling':'→ steady';
+  $('r-'+k).className=c;$('r-'+k).style.fontWeight=700;$('r-'+k).textContent=`dP/dt ≈ ${m>=0?'+':''}${m.toFixed(k==='tp'?3:2)} ${UN[k]}/min · ${w}`;
+  $('p-'+k).textContent=ttl(k,m);$('v-'+k).className='v'+(bad?' al':'')+(k===sel?' sel':'');if(bad)any=true;
+  if(k==='hr'){$('hh').textContent=v.toFixed(0);$('hd').className='rate '+c;$('hd').textContent=`${m>=0?'+':''}${m.toFixed(2)} bpm/min · ${w}`;$('hv').textContent=ttl('hr',m)}});
+ const b=$('ban');b.className='banner'+(any?' al':'');b.textContent=any?'Alert: a reading has crossed its limit':'All readings within limits';
+ $('ct').textContent=LAB[sel]+' over time';const a=S.h[sel];
+ plot($('cp'),S.h.t,a,{col:'--blue',d:DEC[sel],lim:TH[sel]});
+ plot($('cd'),S.h.t,a.map((_,i)=>slope(a.slice(0,i+1))),{col:'--amber',d:3,zero:1,eps:EPS[sel]})}
+function bind(i,o,f,fmt){$(i).oninput=e=>{const v=+e.target.value;$(o).textContent=fmt(v);f(v);dirty=true}}
+bind('sp','oS',v=>speed=v,v=>v+'×');bind('thH','oH',v=>TH.hr=v,v=>v+' bpm');bind('thT','oT',v=>TH.tp=v,v=>v.toFixed(1)+' °C');bind('thO','oO',v=>TH.sp=v,v=>v+' %');
+$('pz').onclick=()=>{run=!run;$('pz').textContent=run?'Pause':'Resume'};
+$('rs').onclick=()=>{fresh();for(let i=0;i<3;i++)tick()};$('sc').onchange=$('rs').onclick;
+/* records (stored in the browser) */
+let PT=store.get('vs.pt',[]),SELP=store.get('vs.sel','');
+function drawRec(){$('rp').innerHTML=PT.length?PT.map(p=>`<option value="${esc(p.id)}">${esc(p.name)} (${esc(p.age)})</option>`).join(''):'<option value="">No patients yet</option>';
+ if(!PT.some(p=>p.id===SELP))SELP=PT[0]?PT[0].id:'';$('rp').value=SELP;const p=PT.find(x=>x.id===SELP);
+ $('rh').textContent=p?`${p.name}, age ${p.age}`:'No patient selected';
+ const f=(v,d)=>v==null?'–':(v>=0?'+':'')+(+v).toFixed(d);
+ $('rt').innerHTML='<tr><th>t (min)</th><th>HR</th><th>dHR/dt</th><th>Temp</th><th>dT/dt</th><th>SpO₂</th><th>dS/dt</th></tr>'+(p&&p.rows.length?p.rows.slice(-10).reverse().map(r=>`<tr><td>${r.t}</td><td>${r.hr}</td><td>${f(r.m.hr,2)}</td><td>${r.tp.toFixed(1)}</td><td>${f(r.m.tp,3)}</td><td>${r.sp}</td><td>${f(r.m.sp,2)}</td></tr>`).join(''):'<tr><td colspan="7" style="text-align:left;color:var(--muted)">Nothing saved yet. Use “Save snapshot” in the live monitor.</td></tr>')}
+function snapshot(quiet){const p=PT.find(x=>x.id===SELP);
+ if(!p){if(!quiet)$('smsg').textContent='Add a patient under Patient records first.';return}
+ const m={};KEYS.forEach(k=>m[k]=slope(S.h[k]));
+ p.rows.push({t:S.t,hr:Math.round(S.h.hr.at(-1)),tp:S.h.tp.at(-1),sp:Math.round(S.h.sp.at(-1)),m});if(p.rows.length>200)p.rows.shift();
+ store.set('vs.pt',PT);drawRec();if(!quiet)$('smsg').textContent='Saved to '+p.name+'.'}
+$('snap').onclick=()=>snapshot(false);
+$('addp').onclick=()=>{const n=$('pn').value.trim();if(!n){$('pmsg').textContent='Enter a name first.';return}
+ const p={id:'p'+Date.now().toString(36),name:n.slice(0,40),age:Math.max(0,Math.min(120,+$('pa').value||0)),rows:[]};PT.push(p);SELP=p.id;store.set('vs.pt',PT);store.set('vs.sel',SELP);$('pn').value='';$('pmsg').textContent='Added '+p.name+'.';drawRec()};
+$('rp').onchange=e=>{SELP=e.target.value;store.set('vs.sel',SELP);drawRec()};
+$('clr').onclick=()=>{const p=PT.find(x=>x.id===SELP);if(p){p.rows=[];store.set('vs.pt',PT);drawRec()}};
+$('del').onclick=()=>{PT=PT.filter(x=>x.id!==SELP);store.set('vs.pt',PT);drawRec()};
+/* case study */
+const CS={t:[0,2,4,6,8],hr:[76,80,84,88,86],tp:[37,37.2,37.4,37.8,37.6],sp:[98,98,97,97,98]};
+(function(){const rt=k=>CS[k].map((v,i)=>i?(v-CS[k][i-1])/(CS.t[i]-CS.t[i-1]):null),a=rt('hr'),b=rt('tp'),c=rt('sp'),f=(v,d)=>v==null?'–':(v>=0?'+':'')+v.toFixed(d);
+ $('tb').innerHTML='<tr><th>Time (min)</th><th>HR (bpm)</th><th>dHR/dt</th><th>Temp (°C)</th><th>dT/dt</th><th>SpO₂ (%)</th><th>dS/dt</th></tr>'+CS.t.map((t,i)=>`<tr class="${CS.tp[i]>37.5?'hot':''}"><td>${t}</td><td>${CS.hr[i]}</td><td>${f(a[i],2)}</td><td>${CS.tp[i].toFixed(1)}</td><td>${f(b[i],2)}</td><td>${CS.sp[i]}</td><td>${f(c[i],2)}</td></tr>`).join('')})();
+/* hero ECG */
+const G=(x,c,w,a)=>a*Math.exp(-Math.pow((x-c)/w,2)),ecgY=p=>G(p,.15,.04,.12)+G(p,.27,.012,-.15)+G(p,.30,.012,1)+G(p,.33,.014,-.25)+G(p,.56,.06,.25);
+let eb=new Array(400).fill(0),ph=0;
+function ecg(){const cv=$('ecg'),w=cv.clientWidth,h=cv.clientHeight,dpr=devicePixelRatio||1;
+ if(w){if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  const hr=S&&S.P?S.P.hr:72;if(run){for(let i=0;i<2;i++){ph=(ph+hr/3600)%1;eb.push(ecgY(ph)+(Math.random()-.5)*.02);eb.shift()}}
+  const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,w,h);x.strokeStyle=css('--pulse');x.lineWidth=2;x.lineJoin='round';x.beginPath();
+  eb.forEach((v,i)=>{const X=w*i/(eb.length-1),Y=h*.78-v*h*.62;i?x.lineTo(X,Y):x.moveTo(X,Y)});x.stroke()}
+ requestAnimationFrame(ecg)}
+/* main loop */
+let last=performance.now();
+function loop(n){const d=Math.min(.25,(n-last)/1000);last=n;if(run){acc+=d*speed;while(acc>=1){acc--;tick()}}if(dirty){render();dirty=false}requestAnimationFrame(loop)}
+addEventListener('resize',()=>{dirty=true;sec()});
+fresh();for(let i=0;i<8;i++)tick();drawRec();calc();sec();requestAnimationFrame(loop);ecg();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{dirty=true;sec()});
+</script>
+</body>
+</html>
